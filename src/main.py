@@ -12,7 +12,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Chloride Ingress Analysis")
     parser.add_argument("input_file", help="Path to input CSV file")
     parser.add_argument("--output_dir", default="output", help="Directory for output files")
+    parser.add_argument("--Ci", type=float, default=None, help="Global initial concentration override. If not set, uses defaults based on Cement Type.")
     args = parser.parse_args()
+
+    # Default Ci values by Binder type
+    # CEM I: 0.01370%
+    # CEM III: 0.00950%
+    # CEM V: 0.00975%
+    CI_DEFAULTS = {
+        "CEM I": 0.01370,
+        "CEM III": 0.00950,
+        "CEM V": 0.00975
+    }
 
     # Load data
     try:
@@ -65,8 +76,16 @@ def main() -> None:
         fit_depths_m = fit_depths_mm / 1000.0
         t_seconds = float(exposure_days) * 24 * 3600
         
-        # Fit (assuming Ci=0.0 per constraint 1)
-        Ci = 0.0
+        # Determine Ci
+        if args.Ci is not None:
+             Ci = args.Ci
+        else:
+             # Strip potential whitespace
+             binder_key = str(binder).strip()
+             Ci = CI_DEFAULTS.get(binder_key, 0.0)
+             if binder_key not in CI_DEFAULTS:
+                 print(f"Warning: Unknown binder '{binder_key}', using Ci=0.0")
+
         Cs, Dnss, Cs_std, Dnss_std, r_squared = fit_chloride_profile(fit_depths_m, fit_chlorides, t_seconds, Ci=Ci)
         
         # Calculate derived metrics

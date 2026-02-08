@@ -31,7 +31,7 @@ python3 src/main.py <input_file> [--output_dir <output_directory>]
 ### Example
 
 ```bash
-python3 src/main.py input/input_data.csv --output_dir output
+python3 src/main.py input/input_data.csv --Ci 0.0137 --output_dir output
 ```
 
 ## Input Format
@@ -54,4 +54,8 @@ The script generates:
 - **Model**: Fick's Second Law (Error Function solution).
 - **Fitting**: Non-linear least squares regression (`scipy.optimize.curve_fit`).
 - **Surface Skin Effect**: The first data point (depth = 0) is excluded from the fit but shown in plots.
-- **Initial Concentration ($C_i$)**: Assumed to be 0.00% unless specified.
+- **Initial Concentration ($C_i$)**: Default values are determined by the `Binder` (Cement Type) as follows:
+    - **CEM I**: 0.01370%
+    - **CEM III**: 0.00950%
+    - **CEM V**: 0.00975%
+  - These can be overridden globally using the `--Ci` argument (e.g., `--Ci 0.0`). If a binder type is unknown, $C_i$ defaults to 0.0.
