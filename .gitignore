@@ -2,3 +2,4 @@ input/
 output/
 .venv
 .DS_Store
+src/__pycache__/
