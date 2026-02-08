@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Union
 # Add project root to python path to allow imports from src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.chloride_model import fit_chloride_profile, calculate_x_alpha, interp_cross
+from src.chloride_model import fit_chloride_profile, calculate_x_alpha, interp_cross, modele_diffusion
 from src.plotting import plot_profile
 
 def main() -> None:
@@ -103,9 +103,10 @@ def main() -> None:
              # Interpolate cross with Ci
              x_cross_mm = interp_cross(raw_depths_mm, raw_chlorides, Ci)
 
-        # Plot
         # Sanitize filename
         safe_name = f"{binder}_{condition}_{exposure_days}".replace(" ", "_").replace("/", "-")
+        
+        # --- Plotting ---
         plot_path = plots_dir / f"{safe_name}.png"
         
         fitted_params = {
@@ -128,6 +129,40 @@ def main() -> None:
             plot_profile(data_group, fitted_params, plot_path)
         except Exception as e:
             print(f"Error plotting {name}: {e}")
+
+        # --- Excel Export ---
+        # Re-calculate fit curve for Excel (same logic as in plotting/original script)
+        
+        x_fit_m = np.linspace(0, 0.025, 400) 
+        y_fit = modele_diffusion(x_fit_m, Cs, Dnss, Ci, t_seconds)
+        x_fit_mm = x_fit_m * 1000.0
+        
+        df_params = pd.DataFrame({
+            "Ci": [Ci],
+            "Cs_opt": [Cs],
+            "Cs_std": [Cs_std],
+            "Dnss_opt (m²/s)": [Dnss],
+            "Dnss_std (m²/s)": [Dnss_std],
+            "t_days": [float(exposure_days)],
+            "alpha": [0.01], # Hardcoded alpha=0.01 in calculation
+            "x_alpha_mm": [x_alpha_mm],
+            "x_cross_exp_mm": [x_cross_mm],
+        })
+        df_curve = pd.DataFrame({"x_mm": x_fit_mm, "y_fit": y_fit})
+        df_raw   = pd.DataFrame({"x_mm_total": raw_depths_mm,
+                                 "chlorures_total": raw_chlorides})
+        
+        excels_dir = output_dir / "excels"
+        excels_dir.mkdir(parents=True, exist_ok=True)
+        excel_path = excels_dir / f"{safe_name}.xlsx"
+        
+        try:
+            with pd.ExcelWriter(excel_path, engine="xlsxwriter") as writer:
+                df_params.to_excel(writer, index=False, sheet_name="params")
+                df_curve.to_excel(writer, index=False, sheet_name="fit_curve")
+                df_raw.to_excel(writer, index=False, sheet_name="raw_data")
+        except Exception as e:
+            print(f"Error saving excel {name}: {e}")
 
         # Store result
         results.append({

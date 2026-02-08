@@ -47,7 +47,7 @@ The input CSV file must contain the following columns:
 
 The script generates:
 1. **Report**: `<output_dir>/results_report.csv` containing fit parameters (`Cs`, `Dnss`, `R_squared`) for each group.
-2. **Plots**: `<output_dir>/plots/` containing PNG plots of the fitted profiles.
+3. **Excel Exports**: `<output_dir>/excels/` containing detailed data and model curves for each group.
 
 ## Methodology
 
