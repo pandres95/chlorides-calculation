@@ -1,9 +1,11 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from .chloride_model import modele_diffusion
+from pathlib import Path
+from typing import Dict, Any, Union
+from src.chloride_model import modele_diffusion
 
-def plot_profile(data_group, fitted_params, output_path, alpha=0.01):
+def plot_profile(data_group: Dict[str, Any], fitted_params: Dict[str, Any], output_path: Union[str, Path], alpha: float = 0.01) -> None:
     """
     Generates and saves the plot for a specific group.
     
@@ -24,15 +26,15 @@ def plot_profile(data_group, fitted_params, output_path, alpha=0.01):
     raw_chlorides = np.array(data_group['raw_chlorides'])
     fit_depths = np.array(data_group['fit_depths_mm'])
     fit_chlorides = np.array(data_group['fit_chlorides'])
-    Ci = data_group['Ci']
-    t = data_group['t_seconds']
+    Ci = float(data_group['Ci'])
+    t = float(data_group['t_seconds'])
     
-    Cs = fitted_params['Cs']
-    Dnss = fitted_params['Dnss']
-    Cs_std = fitted_params['Cs_std']
-    Dnss_std = fitted_params['Dnss_std']
-    x_alpha_mm = fitted_params['x_alpha_mm']
-    x_cross_mm = fitted_params['x_cross_mm']
+    Cs = float(fitted_params['Cs'])
+    Dnss = float(fitted_params['Dnss'])
+    Cs_std = float(fitted_params['Cs_std'])
+    Dnss_std = float(fitted_params['Dnss_std'])
+    x_alpha_mm = float(fitted_params['x_alpha_mm'])
+    x_cross_mm = fitted_params['x_cross_mm']  # Can be None or float
 
     # Generate fit curve
     # 0–25 mm range for plotting as in original script (xlim was 25)

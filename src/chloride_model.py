@@ -1,9 +1,11 @@
 
 import numpy as np
+from numpy.typing import NDArray
 from scipy.optimize import curve_fit
 from scipy.special import erf, erfinv
+from typing import Tuple, Optional, Union
 
-def modele_diffusion(x, Cs, Dnss, Ci, t):
+def modele_diffusion(x: Union[float, NDArray[np.float64]], Cs: float, Dnss: float, Ci: float, t: float) -> Union[float, NDArray[np.float64]]:
     """
     Solution 1D semi-infinie (profil d'erreur) avec teneur de fond Ci.
     y(x) = Ci + (Cs - Ci) * (1 - erf( x / (2 * sqrt(Dnss * t)) ))
@@ -19,7 +21,7 @@ def modele_diffusion(x, Cs, Dnss, Ci, t):
     # To use curve_fit properly, we might need a wrapper or lambda if Ci and t are fixed for the fit.
     return Ci + (Cs - Ci) * (1.0 - erf(x / (2.0 * np.sqrt(Dnss * t))))
 
-def fit_chloride_profile(depths_m, chlorides, t_seconds, Ci=0.0):
+def fit_chloride_profile(depths_m: NDArray[np.float64], chlorides: NDArray[np.float64], t_seconds: float, Ci: float = 0.0) -> Tuple[float, float, float, float, float]:
     """
     Fits the diffusion model to the data.
     
@@ -32,7 +34,7 @@ def fit_chloride_profile(depths_m, chlorides, t_seconds, Ci=0.0):
     """
     
     # Wrapper for curve_fit that fixes Ci and t
-    def model_to_fit(x, Cs, Dnss):
+    def model_to_fit(x: Union[float, NDArray[np.float64]], Cs: float, Dnss: float) -> Union[float, NDArray[np.float64]]:
         return modele_diffusion(x, Cs, Dnss, Ci, t_seconds)
 
     # Initial guesses from original script
@@ -42,7 +44,10 @@ def fit_chloride_profile(depths_m, chlorides, t_seconds, Ci=0.0):
     try:
         params, cov = curve_fit(model_to_fit, depths_m, chlorides, p0=p0, maxfev=20000)
         Cs_opt, Dnss_opt = params
-        Cs_std, Dnss_std = np.sqrt(np.diag(cov)) if cov is not None else (np.nan, np.nan)
+        if cov is not None:
+            Cs_std, Dnss_std = np.sqrt(np.diag(cov))
+        else:
+            Cs_std, Dnss_std = np.nan, np.nan
         
         # Calculate R_squared
         residuals = chlorides - model_to_fit(depths_m, Cs_opt, Dnss_opt)
@@ -55,7 +60,7 @@ def fit_chloride_profile(depths_m, chlorides, t_seconds, Ci=0.0):
         print(f"Fitting failed: {e}")
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
-def calculate_x_alpha(Dnss, t_seconds, alpha=0.01):
+def calculate_x_alpha(Dnss: float, t_seconds: float, alpha: float = 0.01) -> float:
     """
     Calculates the depth x_alpha where the concentration is Ci + alpha*(Cs - Ci).
     """
@@ -65,7 +70,7 @@ def calculate_x_alpha(Dnss, t_seconds, alpha=0.01):
     x_alpha_m = 2.0 * np.sqrt(Dnss * t_seconds) * z
     return x_alpha_m
 
-def interp_cross(depths_mm, chlorides, level):
+def interp_cross(depths_mm: NDArray[np.float64], chlorides: NDArray[np.float64], level: float) -> Optional[float]:
     """
     Première abscisse où le segment [i,i+1] croise 'level' (interp. linéaire).
     Original logic from the script.

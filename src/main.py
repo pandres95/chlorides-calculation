@@ -4,10 +4,11 @@ import pandas as pd
 import numpy as np
 import os
 from pathlib import Path
+from typing import List, Dict, Any, Union
 from src.chloride_model import fit_chloride_profile, calculate_x_alpha, interp_cross
 from src.plotting import plot_profile
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Chloride Ingress Analysis")
     parser.add_argument("input_file", help="Path to input CSV file")
     parser.add_argument("--output_dir", default="output", help="Directory for output files")
