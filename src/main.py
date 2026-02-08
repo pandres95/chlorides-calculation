@@ -3,8 +3,13 @@ import argparse
 import pandas as pd
 import numpy as np
 import os
+import sys
 from pathlib import Path
 from typing import List, Dict, Any, Union
+
+# Add project root to python path to allow imports from src
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.chloride_model import fit_chloride_profile, calculate_x_alpha, interp_cross
 from src.plotting import plot_profile
 
