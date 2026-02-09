@@ -48,6 +48,7 @@ The input CSV file must contain the following columns:
 The script generates:
 1. **Report**: `<output_dir>/results_report.csv` containing fit parameters (`Cs`, `Dnss`, `R_squared`) for each group.
 3. **Excel Exports**: `<output_dir>/excels/` containing detailed data and model curves for each group.
+4. **Trend Plots**: `<output_dir>/trend_Cs.png` and `<output_dir>/trend_Dnss.png`, showing parameter evolution over time.
 
 ## Methodology
 

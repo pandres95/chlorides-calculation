@@ -10,8 +10,10 @@ from typing import List, Dict, Any, Union
 # Add project root to python path to allow imports from src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.chloride_model import fit_chloride_profile, calculate_x_alpha, interp_cross, modele_diffusion
+from src.chloride_model import fit_chloride_profile, calculate_x_alpha, interp_cross
 from src.plotting import plot_profile
+from src.excel_export import export_group_excel
+from src.trends import plot_trends
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Chloride Ingress Analysis")
@@ -131,38 +133,10 @@ def main() -> None:
             print(f"Error plotting {name}: {e}")
 
         # --- Excel Export ---
-        # Re-calculate fit curve for Excel (same logic as in plotting/original script)
-        
-        x_fit_m = np.linspace(0, 0.025, 400) 
-        y_fit = modele_diffusion(x_fit_m, Cs, Dnss, Ci, t_seconds)
-        x_fit_mm = x_fit_m * 1000.0
-        
-        df_params = pd.DataFrame({
-            "Ci": [Ci],
-            "Cs_opt": [Cs],
-            "Cs_std": [Cs_std],
-            "Dnss_opt (m²/s)": [Dnss],
-            "Dnss_std (m²/s)": [Dnss_std],
-            "t_days": [float(exposure_days)],
-            "alpha": [0.01], # Hardcoded alpha=0.01 in calculation
-            "x_alpha_mm": [x_alpha_mm],
-            "x_cross_exp_mm": [x_cross_mm],
-        })
-        df_curve = pd.DataFrame({"x_mm": x_fit_mm, "y_fit": y_fit})
-        df_raw   = pd.DataFrame({"x_mm_total": raw_depths_mm,
-                                 "chlorures_total": raw_chlorides})
-        
-        excels_dir = output_dir / "excels"
-        excels_dir.mkdir(parents=True, exist_ok=True)
-        excel_path = excels_dir / f"{safe_name}.xlsx"
-        
         try:
-            with pd.ExcelWriter(excel_path, engine="xlsxwriter") as writer:
-                df_params.to_excel(writer, index=False, sheet_name="params")
-                df_curve.to_excel(writer, index=False, sheet_name="fit_curve")
-                df_raw.to_excel(writer, index=False, sheet_name="raw_data")
+             export_group_excel(output_dir, safe_name, fitted_params, data_group)
         except Exception as e:
-            print(f"Error saving excel {name}: {e}")
+             print(f"Error exporting excel {name}: {e}")
 
         # Store result
         results.append({
@@ -198,6 +172,13 @@ def main() -> None:
     print(f"Processing complete. {len(results_df)} groups analyzed.")
     print(f"Report saved to: {results_path}")
     print(f"Plots saved to: {plots_dir}")
+
+    # --- Trend Analysis ---
+    try:
+        plot_trends(results_df, output_dir)
+        print(f"Trend plots saved to: {output_dir}")
+    except Exception as e:
+        print(f"Error plotting trends: {e}")
 
 if __name__ == "__main__":
     main()
