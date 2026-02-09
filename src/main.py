@@ -22,6 +22,9 @@ def main() -> None:
     parser.add_argument("--Ci", type=float, default=None, help="Global initial concentration override. If not set, uses defaults based on Cement Type.")
     args = parser.parse_args()
 
+    # =========================
+    # === PARAMÈTRES PHYSIQUES
+    # =========================
     # Default Ci values by Binder type
     # CEM I: 0.01370%
     # CEM III: 0.00950%
@@ -46,6 +49,9 @@ def main() -> None:
 
     results = []
 
+    # =========================
+    # === DONNÉES EXPÉRIMENTALES
+    # =========================
     # Columns expected in input
     # Based on input_data.csv: Binder,Condition,Exposure_Days,Depth_mm,Chloride_Mass_Pct
     group_cols = ['Binder', 'Condition', 'Exposure_Days']
@@ -66,6 +72,7 @@ def main() -> None:
         group = group.sort_values("Depth_mm")
         
         # Data for fit (exclude depth 0, per constraint 2)
+        # Retirer le premier point (0 mm) pour l'ajustement
         fit_data = group[group["Depth_mm"] > 0]
         
         if fit_data.empty:
@@ -80,6 +87,7 @@ def main() -> None:
         fit_chlorides = fit_data["Chloride_Mass_Pct"].values
         
         # Convert to units for model
+        # Conversion mm -> m pour l'ajustement
         fit_depths_m = fit_depths_mm / 1000.0
         t_seconds = float(exposure_days) * 24 * 3600
         
@@ -169,6 +177,10 @@ def main() -> None:
     
     results_path = output_dir / "results_report.csv"
     results_df.to_csv(results_path, index=False)
+    
+    # =========================
+    # === LOG
+    # =========================
     print(f"Processing complete. {len(results_df)} groups analyzed.")
     print(f"Report saved to: {results_path}")
     print(f"Plots saved to: {plots_dir}")
@@ -177,6 +189,7 @@ def main() -> None:
     try:
         plot_trends(results_df, output_dir)
         print(f"Trend plots saved to: {output_dir}")
+
     except Exception as e:
         print(f"Error plotting trends: {e}")
 

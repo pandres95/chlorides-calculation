@@ -5,6 +5,9 @@ from pathlib import Path
 from typing import Dict, Any, Union
 from src.chloride_model import modele_diffusion
 
+# =========================
+# === EXPORT EXCEL
+# =========================
 def export_group_excel(output_dir: Union[str, Path], safe_name: str, params_dict: Dict[str, Any], raw_data: Dict[str, Any]) -> None:
     """
     Exports processing results to an Excel file.
@@ -13,6 +16,8 @@ def export_group_excel(output_dir: Union[str, Path], safe_name: str, params_dict
     safe_name: Filename base (without extension)
     params_dict: Dictionary of fitted parameters (Cs, Dnss, etc.) and metrics
     raw_data: Dictionary containing raw data and fit inputs
+    
+    Produces sheets: 'params', 'fit_curve', and 'raw_data' as in original script.
     """
     output_dir = Path(output_dir)
     excels_dir = output_dir / "excels"

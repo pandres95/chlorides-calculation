@@ -5,6 +5,9 @@ from scipy.optimize import curve_fit
 from scipy.special import erf, erfinv
 from typing import Tuple, Optional, Union
 
+# =========================
+# === MODÈLE & AJUSTEMENT
+# =========================
 def modele_diffusion(x: Union[float, NDArray[np.float64]], Cs: float, Dnss: float, Ci: float, t: float) -> Union[float, NDArray[np.float64]]:
     """
     Solution 1D semi-infinie (profil d'erreur) avec teneur de fond Ci.
@@ -37,7 +40,7 @@ def fit_chloride_profile(depths_m: NDArray[np.float64], chlorides: NDArray[np.fl
     def model_to_fit(x: Union[float, NDArray[np.float64]], Cs: float, Dnss: float) -> Union[float, NDArray[np.float64]]:
         return modele_diffusion(x, Cs, Dnss, Ci, t_seconds)
 
-    # Initial guesses from original script
+    # ⚠️ Logique de fittage identique à l'autre script : mêmes p0, PAS de bornes
     # p0 = [0.02, 1e-12]  # (Cs, Dnss) initial
     p0 = [0.02, 1e-12]
     
@@ -60,9 +63,13 @@ def fit_chloride_profile(depths_m: NDArray[np.float64], chlorides: NDArray[np.fl
         print(f"Fitting failed: {e}")
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
+# =========================
+# === PROFONDEUR x_alpha & CROISEMENT EXP.
+# =========================
 def calculate_x_alpha(Dnss: float, t_seconds: float, alpha: float = 0.01) -> float:
     """
     Calculates the depth x_alpha where the concentration is Ci + alpha*(Cs - Ci).
+    Définition : y(x_alpha) = Ci + ALPHA*(Cs - Ci)
     """
     if Dnss is None or np.isnan(Dnss) or Dnss <= 0:
         return np.nan

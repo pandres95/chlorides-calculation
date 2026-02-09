@@ -9,8 +9,14 @@ def plot_trends(results_df: pd.DataFrame, output_dir: Union[str, Path]) -> None:
     """
     Plots trends for Cs and Dnss over time, grouped by Binder (color) and Condition (line style).
     
+    This function:
+    1. Filters outliers for Cs [0, 500%] and Dnss (median log +/- 2.5).
+    2. Groups data by Cement and Condition.
+    3. Plots each group with specific colors (CEM I=blue, CEM III=green, CEM V=red)
+       and line styles (Standard=-, In situ=--, Autogenous=:).
+    
     results_df: DataFrame containing [Cement, Condition, Age, Cs, Dnss]
-    output_dir: Directory to save plots
+    output_dir: Directory to save plots (trend_Cs.png, trend_Dnss.png)
     """
     output_dir = Path(output_dir)
     

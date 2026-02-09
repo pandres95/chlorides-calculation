@@ -5,6 +5,9 @@ from pathlib import Path
 from typing import Dict, Any, Union
 from src.chloride_model import modele_diffusion
 
+# =========================
+# === COURBE AJUSTÉE & TRACÉ
+# =========================
 def plot_profile(data_group: Dict[str, Any], fitted_params: Dict[str, Any], output_path: Union[str, Path], alpha: float = 0.01) -> None:
     """
     Generates and saves the plot for a specific group.
@@ -65,7 +68,7 @@ def plot_profile(data_group: Dict[str, Any], fitted_params: Dict[str, Any], outp
         plt.scatter([x_cross_mm], [Ci], marker="o")
         plt.text(x_cross_mm, Ci, f"  exp. cross ≈ {x_cross_mm:.2f} mm", va="bottom")
 
-    # Text box
+    # Encart paramètres
     texte = (
         f"Cs = {Cs:.5f} ± {Cs_std:.1e}\n"
         f"Dnss = {Dnss:.2e} ± {Dnss_std:.1e} m²/s\n"
