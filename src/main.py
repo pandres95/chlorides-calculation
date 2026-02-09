@@ -61,8 +61,8 @@ def main() -> None:
     # === DONNÉES EXPÉRIMENTALES
     # =========================
     # Columns expected in input
-    # Based on input_data.csv: Binder,Condition,Exposure_Days,Depth_mm,Chloride_Mass_Pct
-    group_cols = ["Binder", "Condition", "Exposure_Days"]
+    # Based on input_data.csv: Binder,Condition,Exposure_Months,Exposure_Days,Depth_mm,Chloride_Mass_Pct
+    group_cols = ["Binder", "Condition", "Exposure_Months", "Exposure_Days"]
 
     # Check if columns exist
     missing_cols = [col for col in group_cols if col not in df.columns]
@@ -74,7 +74,7 @@ def main() -> None:
     print(f"Processing {len(df)} rows from {args.input_file}...")
 
     for name, group in df.groupby(group_cols):
-        binder, condition, exposure_days = name
+        binder, condition, exposure_months, exposure_days = name
 
         # Sort by depth
         group = group.sort_values("Depth_mm")
@@ -124,9 +124,9 @@ def main() -> None:
             x_cross_mm = interp_cross(raw_depths_mm, raw_chlorides, Ci)
 
         # Sanitize filename
-        safe_name = f"{binder}_{condition}_{exposure_days}".replace(" ", "_").replace(
-            "/", "-"
-        )
+        safe_name = f"{binder}_{condition}_m{exposure_months}_d{exposure_days}".replace(
+            " ", "_"
+        ).replace("/", "-")
 
         # --- Plotting ---
         plot_path = plots_dir / f"{safe_name}.png"
