@@ -83,11 +83,11 @@ def plot_profile(
     )
     plt.gca().text(
         0.02,
-        0.02,
+        0.97,
         texte,
-        fontsize=10,
+        fontsize=9,
         ha="left",
-        va="bottom",
+        va="top",
         transform=plt.gca().transAxes,
         bbox=dict(facecolor="white", alpha=0.7),
     )
